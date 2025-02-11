@@ -1,85 +1,90 @@
-import React from "react";
+import React, { useState } from "react";
 
-const Sidebar = ({ mode, setMode, screen, setScreen }) => {
+const Sidebar = ({ screen, setScreen }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <aside className="duration-500 ease-in-out z-50 hover:w-3/6 w-[12.66%] h-full fixed bg-red-800 text-white shadow-xl flex flex-col text-lg font-medium justify-between pt-32 pb-10 sm:w-1/12 sm:hover:w-4/12 lg:w-[5%] lg:hover:w-2/12 group">
-      <div className="w-full h-3/6 flex flex-col gap-1 items-center justify-center">
-        <div
-          className={`flex gap-3 w-3/4 px-4 py-3 items-center duration-500 ease-in-out rounded-lg hover:shadow-md cursor-pointer ${
-            screen == 0 ? "bg-red-500" : ""
-          }`}
-          onClick={() => {
-            setScreen(0);
-          }}
-        >
-          <i className="fa-solid fa-gauge text-white"></i>
-          <span className="group-hover:text-lg duration-500 ease-in-out text-[0px]">
-            Dashboard
-          </span>
-        </div>
-        <div
-          className={`flex gap-3 w-3/4 px-4 py-3 items-center duration-500 ease-in-out rounded-lg hover:shadow-md cursor-pointer ${
-            screen == 1 ? "bg-red-500" : ""
-          }`}
-          onClick={() => {
-            setScreen(1);
-          }}
-        >
-          <i className="fa-solid fa-gear text-white"></i>
-          <span className="group-hover:text-lg duration-500 ease-in-out text-[0px]">
-            Settings
-          </span>
-        </div>
-        <div
-          className={`flex gap-3 w-3/4 px-4 py-3 items-center duration-500 ease-in-out rounded-lg hover:shadow-md cursor-pointer ${
-            screen == 2 ? "bg-red-500" : ""
-          }`}
-          onClick={() => {
-            setScreen(2);
-          }}
-        >
-          <i className="fa-solid fa-history text-white"></i>
-          <span className="group-hover:text-lg duration-500 ease-in-out text-[0px]">
-            History
-          </span>
-        </div>
-        <div
-          className={`flex gap-3 w-3/4 px-4 py-3 items-center duration-500 ease-in-out rounded-lg hover:shadow-md cursor-pointer ${
-            screen == 3 ? "bg-red-500" : ""
-          }`}
-          onClick={() => {
-            setScreen(3);
-          }}
-        >
-          <i className="fa-solid fa-circle-info text-white"></i>
-          <span className="group-hover:text-lg duration-500 ease-in-out text-[0px]">
-            Info
-          </span>
-        </div>
-        <div className="flex gap-3 w-3/4 px-2 py-3 items-center">
-          <div className="flex justify-center items-center">
-            <div
-              className={mode ? "hidden" : ""}
-              onClick={() => {
-                localStorage.mode = !mode;
-                setMode(!mode);
-              }}
-            >
-              <i className="fa-solid fa-sun w-8 h-8 p-2 text-center rounded-full bg-white text-red-800 cursor-pointer hover:text-white hover:bg-red-700 duration-500 ease-in-out "></i>
-            </div>
-            <div
-              className={mode ? "" : "hidden"}
-              onClick={() => {
-                localStorage.mode = !mode;
-                setMode(!mode);
-              }}
-            >
-              <i className="fa-solid fa-moon w-8 h-8 p-2 text-center rounded-full bg-red-800 text-white cursor-pointer hover:text-red-800 hover:bg-white duration-500 ease-in-out"></i>
-            </div>
+    <>
+      {/* Floating Button (Works on All Screens) */}
+      <button
+        className="fixed top-5 left-5 z-50 flex items-center justify-center w-14 h-14 bg-red-800 text-white rounded-full shadow-lg"
+        onClick={() => setIsOpen(!isOpen)}
+      >
+        <i className="fa-solid fa-bars text-xl"></i>
+      </button>
+
+      {/* Sidebar (Completely Hidden When Closed) */}
+      <aside
+        className={`fixed top-0 left-0 h-full bg-red-800 text-white shadow-xl flex flex-col text-lg font-medium justify-center transition-all duration-500 z-50 
+        ${isOpen ? "w-3/5 sm:w-1/4 lg:w-[15%]" : "w-0"} overflow-hidden`}
+      >
+        <div className="w-full flex flex-col gap-1 items-center justify-center">
+          {/* Dashboard */}
+          <div
+            className={`flex gap-3 w-3/4 px-4 py-3 items-center rounded-lg hover:shadow-md cursor-pointer transition-all duration-300 ${
+              screen === 0 ? "bg-red-500" : ""
+            }`}
+            onClick={() => {
+              setScreen(0);
+              setIsOpen(false);
+            }}
+          >
+            <i className="fa-solid fa-gauge"></i>
+            <span>Dashboard</span>
+          </div>
+
+          {/* Settings */}
+          <div
+            className={`flex gap-3 w-3/4 px-4 py-3 items-center rounded-lg hover:shadow-md cursor-pointer transition-all duration-300 ${
+              screen === 1 ? "bg-red-500" : ""
+            }`}
+            onClick={() => {
+              setScreen(1);
+              setIsOpen(false);
+            }}
+          >
+            <i className="fa-solid fa-gear"></i>
+            <span>Settings</span>
+          </div>
+
+          {/* History */}
+          <div
+            className={`flex gap-3 w-3/4 px-4 py-3 items-center rounded-lg hover:shadow-md cursor-pointer transition-all duration-300 ${
+              screen === 2 ? "bg-red-500" : ""
+            }`}
+            onClick={() => {
+              setScreen(2);
+              setIsOpen(false);
+            }}
+          >
+            <i className="fa-solid fa-history"></i>
+            <span>History</span>
+          </div>
+
+          {/* Info */}
+          <div
+            className={`flex gap-3 w-3/4 px-4 py-3 items-center rounded-lg hover:shadow-md cursor-pointer transition-all duration-300 ${
+              screen === 3 ? "bg-red-500" : ""
+            }`}
+            onClick={() => {
+              setScreen(3);
+              setIsOpen(false);
+            }}
+          >
+            <i className="fa-solid fa-circle-info"></i>
+            <span>Info</span>
           </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+
+      {/* Background Overlay (Closes Sidebar on Click) */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setIsOpen(false)}
+        ></div>
+      )}
+    </>
   );
 };
 
