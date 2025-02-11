@@ -1,67 +1,48 @@
 import React, { useState, useEffect } from "react";
-import { toast } from "react-toastify";
 import { alpha, styled } from "@mui/material/styles";
 import { red } from "@mui/material/colors";
 import Switch from "@mui/material/Switch";
-import axios from "axios";
 
 const Dashboard = () => {
-  const mockData = {
-    lampada: { status: false },
-    sensor: false,
-    Ar_condicionado: { temperatura: 22, status: false },
-    Caixa_de_som: { volume: 50, status: false },
-  };
-  const [lightLoaded, setLightLoaded] = useState(mockData);
-  const [soundLoaded, setSoundLoaded] = useState(mockData);
-  const [airLoaded, setAirLoaded] = useState(mockData);
+  // Estados para os valores variáveis
+  const [heartbeat, setHeartbeat] = useState(85);
+  const [temperature, setTemperature] = useState(33);
 
-  const RedSwitch = styled(Switch)(({ theme }) => ({
-    "& .MuiSwitch-switchBase.Mui-checked": {
-      color: red[800],
-      "&:hover": {
-        backgroundColor: alpha(red[800], theme.palette.action.hoverOpacity),
-      },
-    },
-    "& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track": {
-      backgroundColor: red[800],
-    },
-  }));
+  // Função para gerar valores aleatórios dentro de um intervalo
+  const getRandomValue = (min, max) => Math.floor(Math.random() * (max - min + 1) + min);
 
-  const [lightData, setLightData] = useState(mockData);
-  const [soundData, setSoundData] = useState(mockData);
-  const [airData, setAirData] = useState(mockData);
+  // Efeito para atualizar os valores a cada 5 segundos
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setHeartbeat(getRandomValue(60, 100)); // Simula valores entre 60 e 100 BPM
+      setTemperature(getRandomValue(30, 38)); // Simula valores entre 30°C e 38°C
+    }, 5000);
 
-  const label = { inputProps: { "aria-label": "Switch demo" } };
+    return () => clearInterval(interval); // Cleanup do intervalo ao desmontar o componente
+  }, []);
 
-  return lightLoaded && soundLoaded && airLoaded ? (
+  return (
     <div className="min-h-screen flex-1 flex flex-col gap-5 pl-20 pr-8 py-5">
-      <div className="text-xl text-red-800 font-semibold dark:text-white">
-        Dashboard
+      <div className="text-xl text-red-800 font-semibold dark:text-white md:pr-8 max-md:ml-1">
+        Healthcare Dashboard
       </div>
 
-      <div className="bg-white shadow-lg p-6 border rounded-md dark:bg-slate-800">
-        <div className="text-red-800 text-lg font-medium">Lâmpada</div>
-        <div>Status: {lightData.lampada.status ? "Ligado" : "Desligado"}</div>
-        <RedSwitch {...label} checked={lightData.lampada.status} />
-      </div>
+      <div className="flex md:flex-row flex-col gap-4">
+        {/* Heartbeat */}
+        <div className="bg-red-300 shadow-lg p-6 border rounded-lg dark:bg-slate-800 md:w-[50%] max-md:ml-1">
+          <div className="text-white text-xl font-bold">Heartbeat</div>
+          <div className="text-2xl font-medium text-red-700">{heartbeat}</div>
+        </div>
 
-      <div className="bg-white shadow-lg p-6 border rounded-md dark:bg-slate-800">
-        <div className="text-red-800 text-lg font-medium">Temperatura</div>
-        <div>Ambiente: {airData.sensor}°C</div>
-        <div>Ar-condicionado: {airData.Ar_condicionado.temperatura}°C</div>
-        <RedSwitch {...label} checked={airData.Ar_condicionado.status} />
-      </div>
-
-      <div className="bg-white shadow-lg p-6 border rounded-md dark:bg-slate-800">
-        <div className="text-red-800 text-lg font-medium">Som</div>
-        <div>Volume: {soundData.Caixa_de_som.volume}%</div>
-        <RedSwitch {...label} checked={soundData.Caixa_de_som.status} />
+        {/* Temperatura */}
+        <div className="bg-orange-200 shadow-lg p-6 border rounded-lg dark:bg-slate-800 md:w-[50%] max-md:ml-1">
+          <div className="text-white text-xl font-bold">Temperature</div>
+          <div className="text-2xl font-medium text-orange-600">{temperature}°C</div>
+        </div>
       </div>
     </div>
-  ) : (
-    <div>Carregando...</div>
   );
 };
 
 export default Dashboard;
+
