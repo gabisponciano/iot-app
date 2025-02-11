@@ -35,7 +35,20 @@ const Sidebar = ({ mode, setMode, screen, setScreen }) => {
             screen == 2 ? "bg-red-500" : ""
           }`}
           onClick={() => {
-            setScreen(1);
+            setScreen(2);
+          }}
+        >
+          <i className="fa-solid fa-history text-white"></i>
+          <span className="group-hover:text-lg duration-500 ease-in-out text-[0px]">
+            History
+          </span>
+        </div>
+        <div
+          className={`flex gap-3 w-3/4 px-4 py-3 items-center duration-500 ease-in-out rounded-lg hover:shadow-md cursor-pointer ${
+            screen == 3 ? "bg-red-500" : ""
+          }`}
+          onClick={() => {
+            setScreen(3);
           }}
         >
           <i className="fa-solid fa-circle-info text-white"></i>

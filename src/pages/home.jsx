@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Dashboard from "../components/screens/Dashboard";
 import Settings from "../components/screens/Settings";
+import Info from "../components/screens/Info";
+import History from "../components/screens/History";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -32,6 +34,8 @@ const Home = () => {
         />
         {screen == 0 && <Dashboard />}
         {screen == 1 && <Settings />}
+        {screen == 2 && <History />}
+        {screen == 3 && <Info />}
       </div>
     </div>
   );
