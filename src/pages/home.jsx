@@ -9,6 +9,7 @@ import History from "../components/screens/History";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import Header from "../components/Header";
 
 const Home = () => {
   const [screen, setScreen] = useState(0);
@@ -23,6 +24,15 @@ const Home = () => {
   const [oximetry, setOximetry] = useState(false);
 
   const [historyData, setHistoryData] = useState([]);
+
+  const [name, setName] = useState("Helene Engels");
+  const [email, setEmail] = useState("helene@example.com");
+  const [address, setAddress] = useState(
+    "2 Miles Drive, NJ 071, New York, USA"
+  );
+  const [phone, setPhone] = useState("+1234 567 890");
+  const [sex, setSex] = useState(0);
+  const [ageRange, setAgeRange] = useState(1);
 
   const fetchLatestSensorData = async () => {
     try {
@@ -80,6 +90,7 @@ const Home = () => {
       <div className="w-full h-full dark:bg-slate-900 duration-500 ease-in-out">
         <ToastContainer position="bottom-left" autoClose={5000} />
         <Sidebar screen={screen} setScreen={setScreen} />
+        <Header setScreen={setScreen} name={name} email={email} />
         {screen === 0 && (
           <Dashboard
             heartbeatData={heartbeatData}
@@ -91,7 +102,22 @@ const Home = () => {
             timeData={timeData}
           />
         )}
-        {screen === 1 && <Settings />}
+        {screen === 1 && (
+          <Settings
+            name={name}
+            setName={setName}
+            email={email}
+            setEmail={setEmail}
+            address={address}
+            setAddress={setAddress}
+            phone={phone}
+            setPhone={setPhone}
+            sex={sex}
+            setSex={setSex}
+            ageRange={ageRange}
+            setAgeRange={setAgeRange}
+          />
+        )}
         {screen === 2 && <History historyData={historyData} />}
         {screen === 3 && <Info />}
       </div>
