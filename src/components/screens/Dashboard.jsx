@@ -1,6 +1,8 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios"; // Import axios
+import React, { useState, useEffect, useRef } from "react";
 import { Line } from "react-chartjs-2";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,16 +14,7 @@ import {
   Legend,
 } from "chart.js";
 
-// Register necessary chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
 const Dashboard = ({
   heartbeat,
@@ -31,12 +24,16 @@ const Dashboard = ({
   oximetry,
   oximetryData,
   timeData,
+  ageRange,
 }) => {
   const [name, setName] = useState("Usuário");
-  // Smoothing window size
-  const smoothingWindow = 5; // The number of data points to average
+  const smoothingWindow = 5;
 
-  // Recupera o nome salvo nas configurações do localStorage
+  // Estados para armazenar as últimas 5 medições
+  const heartbeatHistory = useRef([]);
+  const temperatureHistory = useRef([]);
+  const oximetryHistory = useRef([]);
+
   useEffect(() => {
     const savedName = localStorage.getItem("userName");
     if (savedName) {
@@ -44,154 +41,130 @@ const Dashboard = ({
     }
   }, []);
 
-  // Smoothing function (Moving Average)
   const calculateMovingAverage = (data, windowSize) => {
     if (data.length < windowSize) return data;
     return data.map((_, index) => {
-      if (index < windowSize - 1) return data[index]; // Not enough data to average yet
-      const window = data.slice(index - windowSize + 1, index + 1); // Get last n elements
-      const sum = window.reduce((acc, value) => acc + value, 0);
-      return sum / windowSize; // Return average
+      if (index < windowSize - 1) return data[index];
+      const window = data.slice(index - windowSize + 1, index + 1);
+      return window.reduce((acc, value) => acc + value, 0) / windowSize;
     });
   };
 
-  // Apply smoothing to heartbeat, temperature, and oximetry data
-  const smoothedHeartbeatData = calculateMovingAverage(
-    heartbeatData,
-    smoothingWindow
-  );
-  const smoothedTemperatureData = calculateMovingAverage(
-    temperatureData,
-    smoothingWindow
-  );
-  const smoothedOximetryData = calculateMovingAverage(
-    oximetryData,
-    smoothingWindow
-  );
+  const smoothedHeartbeatData = calculateMovingAverage(heartbeatData, smoothingWindow);
+  const smoothedTemperatureData = calculateMovingAverage(temperatureData, smoothingWindow);
+  const smoothedOximetryData = calculateMovingAverage(oximetryData, smoothingWindow);
 
-  // Data for the heartbeat chart
-  const heartbeatChartData = {
-    labels: timeData, // Use timeData for the x-axis
+  const generateChartData = (label, data, borderColor, backgroundColor) => ({
+    labels: timeData,
     datasets: [
       {
-        label: "Heartbeat (BPM)",
-        data: smoothedHeartbeatData,
-        borderColor: "rgba(255, 99, 132, 1)",
-        backgroundColor: "rgba(255, 99, 132, 0.2)",
+        label,
+        data,
+        borderColor,
+        backgroundColor,
         fill: true,
         tension: 0.4,
       },
     ],
-  };
+  });
 
-  // Data for the temperature chart
-  const temperatureChartData = {
-    labels: timeData, // Use timeData for the x-axis
-    datasets: [
-      {
-        label: "Temperature (°C)",
-        data: smoothedTemperatureData,
-        borderColor: "rgba(255, 159, 64, 1)",
-        backgroundColor: "rgba(255, 159, 64, 0.2)",
-        fill: true,
-        tension: 0.4,
-      },
-    ],
-  };
-
-  // Data for the oximetry chart
-  const oximetryChartData = {
-    labels: timeData, // Use timeData for the x-axis
-    datasets: [
-      {
-        label: "Oximetry (%)",
-        data: smoothedOximetryData,
-        borderColor: "rgba(75, 192, 192, 1)",
-        backgroundColor: "rgba(75, 192, 192, 0.2)",
-        fill: true,
-        tension: 0.4,
-      },
-    ],
-  };
-
-  // Chart options to limit x-axis labels
   const chartOptions = {
     responsive: true,
-    maintainAspectRatio: false, // Allow flexible resizing
-    scales: {
-      x: {
-        ticks: {
-          autoSkip: true,
-          maxTicksLimit: 10,
-        },
-      },
-    },
+    maintainAspectRatio: false,
+    scales: { x: { ticks: { autoSkip: true, maxTicksLimit: 10 } } },
   };
+
+  const getHeartbeatThreshold = () => {
+    // Ajusta as faixas conforme o ageRange
+    if (ageRange === 0) return 140; 
+    if (ageRange === 2) return 110; 
+    return 120; 
+  };
+  useEffect(() => {
+    heartbeatHistory.current = [...heartbeatHistory.current.slice(-4), heartbeat];
+    temperatureHistory.current = [...temperatureHistory.current.slice(-4), temperature];
+    oximetryHistory.current = [...oximetryHistory.current.slice(-4), oximetry];
+  
+    const ageThreshold = getHeartbeatThreshold();
+  
+    // Verifica se TODAS as últimas 5 medições atendem aos critérios de alerta
+    const isShockCondition = heartbeatHistory.current.every(hb => hb >= ageThreshold) &&
+                             temperatureHistory.current.every(temp => temp < 30 || temp > 36) &&
+                             oximetryHistory.current.every(ox => ox < 90);
+    
+    const isHeatStrokeCondition = heartbeatHistory.current.every(hb => hb >= ageThreshold) &&
+                                  temperatureHistory.current.every(temp => temp > 37);
+  
+    const isHypoxiaCondition = oximetryHistory.current.every(ox => ox < 90)  && heartbeatHistory.current.every(hb => hb >= ageThreshold) && temperatureHistory.current.every(temp => temp > 37);
+  
+    try {
+      toast.dismiss();
+  
+      if (isShockCondition) {
+        toast.error("⚠️ Risco de Emergência! Possível choque. Procure ajuda imediata!", { autoClose: 5000 });
+      }
+      
+      if (isHeatStrokeCondition) {
+        toast.error("⚠️ Emergência! Sinais de golpe de calor. Procure ajuda imediata!", { autoClose: 5000 });
+      }
+      
+      if (isHypoxiaCondition) {
+        toast.warning("⚠️ Atenção! Possível hipóxia detectada. Procure ajuda imediata!", { autoClose: 5000 });
+      }
+    } catch (error) {
+      console.error("Toast error:", error);
+    }
+  }, [heartbeat, temperature, oximetry, ageRange]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
-      {/* Header */}
-      <div className="text-3xl font-bold text-red-800 dark:text-white text-center">
-        Olá, {name}! 👋
-      </div>
-      <p className="text-gray-600 text-lg mt-2">
-        Bem-vindo ao seu Healthcare Dashboard
-      </p>
+      <ToastContainer closeOnClick pauseOnFocusLoss={false} />
 
-      {/* Dashboard Cards */}
-      <div className="flex flex-wrap justify-center gap-6 mt-6 w-full max-w-3xl">
-        {/* Heartbeat */}
-        <div className="bg-white shadow-lg p-6 rounded-lg border-l-4 border-red-600 text-center w-72">
-          <h3 className="text-xl font-semibold text-gray-700">Heartbeat</h3>
-          <p className="text-4xl font-bold text-red-600 mt-2">
-            {heartbeat !== false ? `${heartbeat} BPM` : "Loading..."}
-          </p>
-        </div>
+      <div className="text-3xl font-bold text-red-800 text-center">Olá, {name}! 👋</div>
+      <p className="text-gray-600 text-lg mt-2">Bem-vindo ao seu Healthcare Dashboard</p>
 
-        <div className="bg-white shadow-lg p-6 rounded-lg border-l-4 border-orange-500 text-center w-72">
-          <h3 className="text-xl font-semibold text-gray-700">Temperatura</h3>
-          <p className="text-4xl font-bold text-orange-600 mt-2">
-            {temperature !== false ? `${temperature}°C` : "Loading..."}
-          </p>
-        </div>
-
-        <div className="bg-white shadow-lg p-6 rounded-lg border-l-4 border-teal-500 text-center w-72">
-          <h3 className="text-xl font-semibold text-gray-700">Oximetry</h3>
-          <p className="text-4xl font-bold text-teal-600 mt-2">
-            {oximetry !== false ? `${oximetry}%` : "Loading..."}
-          </p>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6 w-full max-w-5xl">
+        {[  
+          { label: "Heartbeat", value: heartbeat, unit: "BPM", color: "red-600" },
+          { label: "Temperatura", value: temperature, unit: "°C", color: "orange-500" },
+          { label: "Oximetry", value: oximetry, unit: "%", color: "teal-500" },
+        ].map(({ label, value, unit, color }, index) => (
+          <div key={index} className={`bg-white shadow-lg p-6 rounded-lg border-l-4 border-${color} text-center`}>
+            <h3 className="text-xl font-semibold text-gray-700">{label}</h3>
+            <p className={`text-4xl font-bold text-${color} mt-2`}>{value !== false ? `${value} ${unit}` : "Loading..."}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Charts */}
-      <div className="mt-6 w-full max-w-3xl flex flex-col md:flex-row gap-5 items-center justify-center">
-        {/* Heartbeat Chart */}
-        <div className="w-full min-w-[300px] sm:min-w-[500px] lg:min-w-[800px] min-h-[300px] h-auto flex flex-col gap-3 border-l-4 border-red-600 bg-white rounded-md p-5 shadow-md">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">
-            Heartbeat Over Time
-          </h3>
-          <div className="relative w-full h-[300px]">
-            <Line data={heartbeatChartData} options={chartOptions} />
+      <div className="mt-6 w-full max-w-6xl grid grid-cols-1 lg:grid-cols-2 gap-5">
+        <div className="w-full h-[350px] flex flex-col gap-3 border-l-4 bg-white rounded-md p-5 shadow-md">
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">Heartbeat Over Time</h3>
+          <div className="relative w-full h-full">
+            <Line
+              data={generateChartData("Heartbeat (BPM)", smoothedHeartbeatData, "rgba(255, 99, 132, 1)", "rgba(255, 99, 132, 0.2)")}
+              options={chartOptions}
+            />
           </div>
         </div>
-
-        {/* Temperature Chart */}
-        <div className="w-full min-w-[300px] sm:min-w-[500px] lg:min-w-[800px] min-h-[300px] h-auto flex flex-col gap-3 border-l-4 border-orange-500 bg-white rounded-md p-5 shadow-md">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">
-            Temperature Over Time
-          </h3>
-          <div className="relative w-full h-[300px]">
-            <Line data={temperatureChartData} options={chartOptions} />
+        <div className="w-full h-[350px] flex flex-col gap-3 border-l-4 bg-white rounded-md p-5 shadow-md">
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">Temperature Over Time</h3>
+          <div className="relative w-full h-full">
+            <Line
+              data={generateChartData("Temperature (°C)", smoothedTemperatureData, "rgba(255, 159, 64, 1)", "rgba(255, 159, 64, 0.2)")}
+              options={chartOptions}
+            />
           </div>
         </div>
+      </div>
 
-        {/* Oximetry Chart */}
-        <div className="w-full min-w-[300px] sm:min-w-[500px] lg:min-w-[800px] min-h-[300px] h-auto flex flex-col gap-3 border-l-4 border-teal-500 bg-white rounded-md p-5 shadow-md">
-          <h3 className="text-xl font-semibold text-gray-700 mb-4">
-            Oximetry Over Time
-          </h3>
-          <div className="relative w-full h-[300px]">
-            <Line data={oximetryChartData} options={chartOptions} />
+      <div className="mt-6 w-full max-w-3xl flex justify-center">
+        <div className="w-full h-[350px] flex flex-col gap-3 border-l-4 bg-white rounded-md p-5 shadow-md">
+          <h3 className="text-xl font-semibold text-gray-700 mb-4">Oximetry Over Time</h3>
+          <div className="relative w-full h-full">
+            <Line
+              data={generateChartData("Oximetry (%)", smoothedOximetryData, "rgba(75, 192, 192, 1)", "rgba(75, 192, 192, 0.2)")}
+              options={chartOptions}
+            />
           </div>
         </div>
       </div>

@@ -35,11 +35,6 @@ export default function Settings({
         </button>
 
         <div className="flex items-center space-x-4">
-          <img
-            className="h-16 w-16 rounded-lg"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/helene-engels.png"
-            alt="Helene avatar"
-          />
           <div>
             <span className="mb-2 inline-block rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
               PRO Account

@@ -1,26 +1,27 @@
 import React from "react";
 
 const Info = () => {
-  const heartRates = [
-    { range: "8-17 anos", bpm: "80-100 bpm", temp: "36.6°C - 37.2°C" },
-    { range: "Sexo Feminino de 18-65 anos", bpm: "70-80 bpm", temp: "36.1°C - 37.2°C" },
-    { range: "Sexo Masculino de 18-65 anos", bpm: "67-87 bpm", temp: "36.1°C - 37.2°C" },
-    { range: "65+ anos", bpm: "50-70 bpm", temp: "35.8°C - 37.1°C" },
+  const healthData = [
+    { "range": "8-17 anos", "bpm": "80-100 bpm", "temp": "32.5°C - 35.0°C", "oximetria": "97% - 100%" },
+    { "range": "Sexo Feminino de 18-65 anos", "bpm": "70-80 bpm", "temp": "30.0°C - 33.0°C", "oximetria": "95% - 99%" },
+    { "range": "Sexo Masculino de 18-65 anos", "bpm": "67-87 bpm", "temp": "31.0°C - 34.0°C", "oximetria": "95% - 99%" },
+    { "range": "65+ anos", "bpm": "50-70 bpm", "temp": "29.5°C - 33.0°C", "oximetria": "94% - 98%" }
   ];
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 sm:p-6">
       <div className="bg-white shadow-lg rounded-xl p-4 sm:p-6 w-full max-w-lg">
-        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 text-center">Informações de Saúde</h2>
+        <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 text-center">Informações de Saúde em Repouso</h2>
 
         {/* Faixas etárias */}
         <div className="mb-6">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2 text-center">Frequência Cardíaca e Temperatura Média</h3>
-          {heartRates.map((item, index) => (
+          <h3 className="text-lg font-semibold text-gray-700 mb-2 text-center">Frequência Cardíaca, Temperatura e Oximetria</h3>
+          {healthData.map((item, index) => (
             <div key={index} className="p-3 sm:p-4 mb-2 border rounded-lg bg-gray-50 text-center">
               <p className="text-gray-800 font-medium">Categoria: {item.range}</p>
               <p className="text-red-600">Batimentos: {item.bpm}</p>
               <p className="text-orange-600">Temperatura: {item.temp}</p>
+              <p className="text-teal-600">Oximetria: {item.oximetria}</p>
             </div>
           ))}
         </div>

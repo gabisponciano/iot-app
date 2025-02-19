@@ -9,7 +9,7 @@ export default function Header({ setScreen, name, email }) {
   };
 
   return (
-    <header className="absolute bg-white shadow-md px-6 py-4 flex justify-between items-center right-44 top-4 border-l-4 border-l-red-500 rounded-md">
+    <header className="hidden md:flex absolute bg-white shadow-md px-6 py-4 justify-between items-center right-44 top-4 border-l-4 border-l-red-500 rounded-md">
       <div className="relative">
         <button
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
@@ -17,7 +17,7 @@ export default function Header({ setScreen, name, email }) {
         >
           <img
             className="h-10 w-10 rounded-full"
-            src="https://flowbite.s3.amazonaws.com/blocks/marketing-ui/avatars/helene-engels.png"
+            src="/images/pata.png"
             alt="User Avatar"
           />
           <span className="text-gray-800 dark:text-white font-medium">
