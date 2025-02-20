@@ -20,9 +20,7 @@ export default function Header({ setScreen, name, email }) {
             src="/images/pata.png"
             alt="User Avatar"
           />
-          <span className="text-gray-800 dark:text-white font-medium">
-            {name}
-          </span>
+          <span className="text-gray-800 font-medium">{name}</span>
         </button>
         <div
           className={`absolute w-44 -right-6 bg-white mt-6 shadow-lg rounded-lg z-50 transition-max-height duration-500 ease-in-out overflow-hidden ${

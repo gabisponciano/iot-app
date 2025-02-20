@@ -6,7 +6,6 @@ import Dashboard from "../components/screens/Dashboard";
 import Settings from "../components/screens/Settings";
 import Info from "../components/screens/Info";
 import History from "../components/screens/History";
-import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import Header from "../components/Header";
@@ -25,14 +24,31 @@ const Home = () => {
 
   const [historyData, setHistoryData] = useState([]);
 
-  const [name, setName] = useState("Gabriela Ponciano");
-  const [email, setEmail] = useState("gabriela.ponciano@yahoo.com.br");
-  const [address, setAddress] = useState(
-    "Deti 725"
+  const [sex, setSex] = useState(localStorage.getItem("sex") || 0);
+  const [ageRange, setAgeRange] = useState(
+    localStorage.getItem("ageRange") || 1
   );
-  const [phone, setPhone] = useState("0303 000 3344 ");
-  const [sex, setSex] = useState(0);
-  const [ageRange, setAgeRange] = useState(1);
+  const [name, setName] = useState(
+    localStorage.getItem("name") || "Gabriela Ponciano"
+  );
+  const [email, setEmail] = useState(
+    localStorage.getItem("email") || "gabriela.ponciano@yahoo.com.br"
+  );
+  const [address, setAddress] = useState(
+    localStorage.getItem("address") || "Deti 725"
+  );
+  const [phone, setPhone] = useState(
+    localStorage.getItem("phone") || "4002-8922"
+  );
+
+  useEffect(() => {
+    localStorage.setItem("sex", sex);
+    localStorage.setItem("ageRange", ageRange);
+    localStorage.setItem("name", name);
+    localStorage.setItem("email", email);
+    localStorage.setItem("address", address);
+    localStorage.setItem("phone", phone);
+  }, [sex, ageRange, name, email, address, phone]);
 
   const fetchLatestSensorData = async () => {
     try {
@@ -88,7 +104,6 @@ const Home = () => {
   return (
     <div className={`w-full h-auto flex`}>
       <div className="w-full h-full dark:bg-slate-900 duration-500 ease-in-out">
-        <ToastContainer position="bottom-left" autoClose={5000} />
         <Sidebar screen={screen} setScreen={setScreen} />
         <Header setScreen={setScreen} name={name} email={email} />
         {screen === 0 && (

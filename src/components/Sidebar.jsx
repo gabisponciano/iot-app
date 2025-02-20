@@ -44,7 +44,7 @@ const Sidebar = ({ screen, setScreen }) => {
             }}
           >
             <i className="fa-solid fa-gear"></i>
-            <span>Settings</span>
+            <span>Config</span>
           </div>
 
           {/* History */}
@@ -58,7 +58,7 @@ const Sidebar = ({ screen, setScreen }) => {
             }}
           >
             <i className="fa-solid fa-history"></i>
-            <span>History</span>
+            <span>Histórico</span>
           </div>
 
           {/* Info */}

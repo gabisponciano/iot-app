@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Settings({
   name,
@@ -15,20 +16,68 @@ export default function Settings({
   setAgeRange,
 }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Estado temporário para edição
+  const [tempData, setTempData] = useState({
+    name,
+    email,
+    address,
+    phone,
+    sex,
+    ageRange,
+  });
+
+  const validateForm = () => {
+    if (
+      !tempData.name.trim() ||
+      !tempData.email.trim() ||
+      !tempData.address.trim() ||
+      !tempData.phone.trim() ||
+      tempData.sex === "" ||
+      tempData.ageRange === ""
+    ) {
+      toast.error("Todos os campos devem ser preenchidos.");
+      return false;
+    }
+
+    // Validação de e-mail simples
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(tempData.email)) {
+      toast.error("Por favor, insira um e-mail válido.");
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSave = () => {
+    if (!validateForm()) return;
+
+    // Aplicar as mudanças aos estados principais
+    setName(tempData.name);
+    setEmail(tempData.email);
+    setAddress(tempData.address);
+    setPhone(tempData.phone);
+    setSex(tempData.sex);
+    setAgeRange(tempData.ageRange);
+
+    toast.success("Configurações salvas com sucesso!");
     setIsModalOpen(false);
-    alert("Configurações salvas com sucesso!");
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-6">
+      <ToastContainer position="bottom-left" autoClose={5000} />
       <h3 className="text-4xl font-bold text-red-800 text-center mb-6">
         Perfil do Usuário
       </h3>
-      <section className="relative bg-white py-8 antialiased dark:bg-gray-900 md:py-8 w-full max-w-3xl rounded-lg shadow-lg p-8">
-        {/* Ícone de editar no topo direito */}
+      <section className="relative bg-white py-8 antialiased md:py-8 w-full max-w-3xl rounded-lg shadow-lg p-8">
+        {/* Ícone de editar */}
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => {
+            setTempData({ name, email, address, phone, sex, ageRange }); // Resetar os valores ao abrir
+            setIsModalOpen(true);
+          }}
           className="absolute top-4 right-4 bg-red-600 py-2 px-3 rounded-md hover:bg-red-700 transition-all duration-500 ease-in-out"
         >
           <i className="fa-solid fa-pencil text-xl text-white"></i>
@@ -39,35 +88,27 @@ export default function Settings({
             <span className="mb-2 inline-block rounded bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
               PRO Account
             </span>
-            <h2 className="text-xl font-bold leading-none text-gray-900 dark:text-white sm:text-2xl">
+            <h2 className="text-xl font-bold leading-none text-gray-900 sm:text-2xl">
               {name}
             </h2>
           </div>
         </div>
 
-        <dl className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-gray-600 dark:text-gray-400">
+        <dl className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-gray-600">
           <div>
-            <dt className="font-semibold text-gray-900 dark:text-white">
-              Email
-            </dt>
+            <dt className="font-semibold text-gray-900">Email</dt>
             <dd>{email}</dd>
           </div>
           <div>
-            <dt className="font-semibold text-gray-900 dark:text-white">
-              Endereço
-            </dt>
+            <dt className="font-semibold text-gray-900">Endereço</dt>
             <dd>{address}</dd>
           </div>
           <div>
-            <dt className="font-semibold text-gray-900 dark:text-white">
-              Telefone
-            </dt>
+            <dt className="font-semibold text-gray-900">Telefone</dt>
             <dd>{phone}</dd>
           </div>
           <div>
-            <dt className="font-semibold text-gray-900 dark:text-white">
-              Sexo
-            </dt>
+            <dt className="font-semibold text-gray-900">Sexo</dt>
             <dd>
               {sex === 0
                 ? "Feminino"
@@ -77,9 +118,7 @@ export default function Settings({
             </dd>
           </div>
           <div>
-            <dt className="font-semibold text-gray-900 dark:text-white">
-              Faixa Etária
-            </dt>
+            <dt className="font-semibold text-gray-900">Faixa Etária</dt>
             <dd>
               {ageRange === 0
                 ? "8 - 17 anos"
@@ -100,8 +139,10 @@ export default function Settings({
             <label className="block text-gray-600 font-medium mb-1">Nome</label>
             <input
               type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={tempData.name}
+              onChange={(e) =>
+                setTempData((prev) => ({ ...prev, name: e.target.value }))
+              }
               className="w-full p-2 border rounded-lg mb-4"
             />
             <label className="block text-gray-600 font-medium mb-1">
@@ -109,8 +150,10 @@ export default function Settings({
             </label>
             <input
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={tempData.email}
+              onChange={(e) =>
+                setTempData((prev) => ({ ...prev, email: e.target.value }))
+              }
               className="w-full p-2 border rounded-lg mb-4"
             />
             <label className="block text-gray-600 font-medium mb-1">
@@ -118,8 +161,10 @@ export default function Settings({
             </label>
             <input
               type="text"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
+              value={tempData.address}
+              onChange={(e) =>
+                setTempData((prev) => ({ ...prev, address: e.target.value }))
+              }
               className="w-full p-2 border rounded-lg mb-4"
             />
             <label className="block text-gray-600 font-medium mb-1">
@@ -127,14 +172,21 @@ export default function Settings({
             </label>
             <input
               type="tel"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              value={tempData.phone}
+              onChange={(e) =>
+                setTempData((prev) => ({ ...prev, phone: e.target.value }))
+              }
               className="w-full p-2 border rounded-lg mb-4"
             />
             <label className="block text-gray-600 font-medium mb-1">Sexo</label>
             <select
-              value={sex}
-              onChange={(e) => setSex(Number(e.target.value))}
+              value={tempData.sex}
+              onChange={(e) =>
+                setTempData((prev) => ({
+                  ...prev,
+                  sex: Number(e.target.value),
+                }))
+              }
               className="w-full p-2 border rounded-lg mb-4"
             >
               <option value="">Selecione</option>
@@ -145,8 +197,13 @@ export default function Settings({
               Faixa Etária
             </label>
             <select
-              value={ageRange}
-              onChange={(e) => setAgeRange(Number(e.target.value))}
+              value={tempData.ageRange}
+              onChange={(e) =>
+                setTempData((prev) => ({
+                  ...prev,
+                  ageRange: Number(e.target.value),
+                }))
+              }
               className="w-full p-2 border rounded-lg mb-4"
             >
               <option value={0}>8 - 17 anos</option>
