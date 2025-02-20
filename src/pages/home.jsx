@@ -80,7 +80,7 @@ const Home = () => {
     const interval = setInterval(() => {
       fetchLatestSensorData();
       fetchHistoryData();
-    }, 15000);
+    }, 5000);
 
     return () => clearInterval(interval);
   }, []);
