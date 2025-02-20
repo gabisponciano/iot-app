@@ -25,12 +25,12 @@ const Home = () => {
 
   const [historyData, setHistoryData] = useState([]);
 
-  const [name, setName] = useState("Helene Engels");
-  const [email, setEmail] = useState("helene@example.com");
+  const [name, setName] = useState("Gabriela Ponciano");
+  const [email, setEmail] = useState("gabriela.ponciano@yahoo.com.br");
   const [address, setAddress] = useState(
-    "2 Miles Drive, NJ 071, New York, USA"
+    "Deti 725"
   );
-  const [phone, setPhone] = useState("+1234 567 890");
+  const [phone, setPhone] = useState("0303 000 3344 ");
   const [sex, setSex] = useState(0);
   const [ageRange, setAgeRange] = useState(1);
 
